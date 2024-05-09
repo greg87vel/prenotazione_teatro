@@ -60,34 +60,13 @@ def load_seats():
 
 
 def update_seat(seat_id, data):
-    """
-    Funzione per aggiornare un posto utilizzando una transazione.
-    """
-
-    def transaction_seat_update(seat_data):
-        if seat_data is None:
-            st.warning("Errore nel trovare il posto.")
-            return None
-
-        if seat_data['prenotato'].lower() == 'no':
-            # Aggiorna i dati se il posto non è ancora prenotato
-            seat_data.update(data)
-            st.success("Prenotazione effettuata con successo!")
-            st.session_state['selected_seat'] = None
-        else:
-            # Segnala che il posto è già prenotato
-            st.warning(f"Prenotazione non riuscita. Il posto è stato appena prenotato da {seat_data['nominativo'].upper()}")
-            st.session_state['selected_seat'] = None
-        return seat_data
-
-    # Aggiorna il riferimento
+    # Update a specific seat data in Firebase
     ref = db.reference(f'/{st.session_state["evento"]}/{seat_id}')
-    try:
-        ref.transaction(transaction_seat_update)
+    if ref.get()['prenotato'].lower() == 'no':
+        ref.update(data)
+        st.success("Prenotazione effettuata con successo!")
         time.sleep(1.5)
-    except Exception as e:
-        st.error(f"Errore nella prenotazione: {str(e)}")
-
+        st.session_state['selected_seat'] = None
 
 
 # ----------------------------
