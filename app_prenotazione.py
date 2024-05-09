@@ -184,6 +184,7 @@ def show_billing_page():
                     }
                     update_seat(selected_seat, new_data)
                     st.rerun()
+                st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da {info_posto['nominativo']}")
 
     st.button("Esci", on_click=logout)
 
