@@ -101,11 +101,10 @@ def pagina_scelta_evento():
 
         # Crea un pulsante Streamlit per ogni referenza
         for ref in references:
-            nome_evento = ref.replace('_', ' - ')
-            if nome_evento == 'CREDENZIALI':
+            if ref in ['CREDENZIALI', 'credenziali']:
                 pass
-            elif st.button(nome_evento):
-                st.session_state['evento'] = nome_evento
+            elif st.button(ref):
+                st.session_state['evento'] = ref
                 st.rerun()
     else:
         st.write("Nessuna referenza trovata.")
