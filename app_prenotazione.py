@@ -1,14 +1,13 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
+import time
 
 # ----------------------------
 # IMPOSTAZIONI
 
 # Configura Firebase Admin SDK
-if firebase_admin._apps:
-    pass
-else:
+if not firebase_admin._apps:
     cred = credentials.Certificate('cred-greg.json')
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
@@ -23,6 +22,8 @@ if "username" not in st.session_state:
     st.session_state.username = ""
 if "evento" not in st.session_state:
     st.session_state['evento'] = ''
+if "selected_seat" not in st.session_state:
+    st.session_state['selected_seat'] = None
 
 # Titolo
 st.image('logoROTcol.png', width=200)
@@ -38,7 +39,7 @@ def logout():
 
 
 def login(user, password):
-    ref_credenziali = db.reference(f'/credenziali')
+    ref_credenziali = db.reference('/credenziali')
     credentials = ref_credenziali.get()
     if not credentials:
         st.session_state.logged_in = False
@@ -172,22 +173,19 @@ def show_billing_page():
                 ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
                 info_posto = ref_posto_da_prenotare.get()
                 if info_posto['prenotato'].lower() == 'no':
-                    st.write(info_posto['prenotato'])
-                    import time
-                    time.sleep(3)
                     new_data = {
                         'prenotato': 'sì',
                         'nominativo': st.session_state.username.capitalize(),
                         'note': note
                     }
                     update_seat(selected_seat, new_data)
-                    st.success(f"Prenotazione effettuata con successo!")
-                    time.sleep(3)
+                    st.success("Prenotazione effettuata con successo!")
+                    time.sleep(2)
+                    st.session_state['selected_seat'] = None
                     st.rerun()
-                if info_posto['prenotato'].lower() == 'sì':
+                else:
                     st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
-                    import time
-                    time.sleep(3)
+                    time.sleep(2)
 
     st.button("Esci", on_click=logout)
 
@@ -197,9 +195,7 @@ def show_billing_page():
 
 if st.session_state['evento']:
     show_billing_page()
-
 elif st.session_state.logged_in:
     pagina_scelta_evento()
-
 else:
     show_login_page()
