@@ -114,7 +114,7 @@ def pagina_scelta_evento():
 # ----------------------------
 # PAGINA DI PRENOTAZIONE
 
-def show_billing_page(evento):
+def show_billing_page():
     st.success(f"Benvenuto, {st.session_state.username.capitalize()}! 😊")
     st.success(f"Hai selezionato l'evento: {st.session_state['evento'].upper()}")
     # Carica i dati dei posti
@@ -185,7 +185,7 @@ def show_billing_page(evento):
 # GESTIONE DELLE PAGINE
 
 if st.session_state['evento']:
-    show_billing_page(st.session_state['evento'])
+    show_billing_page()
 
 elif st.session_state.logged_in:
     pagina_scelta_evento()
