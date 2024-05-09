@@ -60,7 +60,7 @@ def load_seats():
 
 def update_seat(seat_id, data):
     # Update a specific seat data in Firebase
-    ref = db.reference(f'/data_spettacolo_teatro/{seat_id}')
+    ref = db.reference(f'/{st.session_state["evento"]}/{seat_id}')
     ref.update(data)
 
 
