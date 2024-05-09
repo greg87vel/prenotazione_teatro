@@ -180,12 +180,13 @@ def show_billing_page():
                     }
                     update_seat(selected_seat, new_data)
                     st.success("Prenotazione effettuata con successo!")
-                    time.sleep(2)
+                    time.sleep(1.5)
                     st.session_state['selected_seat'] = None
                     st.rerun()
                 else:
                     st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
                     time.sleep(2)
+                    st.rerun()
 
     st.button("Esci", on_click=logout)
 
