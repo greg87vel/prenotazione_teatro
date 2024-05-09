@@ -184,7 +184,7 @@ def show_billing_page():
                     st.success(f"Prenotazione effettuata con successo!")
                     time.sleep(3)
                     st.rerun()
-                else:
+                if info_posto['prenotato'].lower() == 'sì':
                     st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
                     time.sleep(3)
 
