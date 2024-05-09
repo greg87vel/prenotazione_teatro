@@ -46,7 +46,7 @@ def login(user, password):
         return False
 
     for credential in credentials:
-        if credential and credential.get('user').lower() == user and credential.get('password').lower() == password:
+        if credential and credential.get('user').lower() == user.lower() and credential.get('password').lower() == password.lower():
             st.session_state.logged_in = True
             return True
     return False
