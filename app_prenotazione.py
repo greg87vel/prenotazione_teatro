@@ -171,10 +171,10 @@ def show_billing_page():
             if submit_button:
                 ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
                 info_posto = ref_posto_da_prenotare.get()
-                st.write(info_posto)
-                import time
-                time.sleep(3)
                 if info_posto['prenotato'].lower() == 'no':
+                    st.write(info_posto)
+                    import time
+                    time.sleep(3)
                     new_data = {
                         'prenotato': 'sì',
                         'nominativo': st.session_state.username.capitalize(),
@@ -186,6 +186,7 @@ def show_billing_page():
                     st.rerun()
                 if info_posto['prenotato'].lower() == 'sì':
                     st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
+                    import time
                     time.sleep(3)
 
     st.button("Esci", on_click=logout)
