@@ -182,9 +182,12 @@ def show_billing_page():
                     }
                     update_seat(selected_seat, new_data)
                     st.success(f"Prenotazione effettuata con successo!")
+                    time.sleep(3)
                     st.rerun()
                 else:
                     st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
+                    time.sleep(3)
+
     st.button("Esci", on_click=logout)
 
 
