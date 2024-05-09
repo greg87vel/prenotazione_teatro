@@ -116,7 +116,7 @@ def pagina_scelta_evento():
 
 def show_billing_page(evento):
     st.success(f"Benvenuto, {st.session_state.username.capitalize()}! 😊")
-    st.success(f"Hai selezionato l'evento: {st.session_state[evento].upper()}")
+    st.success(f"Hai selezionato l'evento: {st.session_state['evento'].upper()}")
     # Carica i dati dei posti
     seats_data = load_seats()
     if not seats_data:
