@@ -107,7 +107,7 @@ def pagina_scelta_evento():
                 st.session_state['evento'] = ref
                 st.rerun()
     else:
-        st.write("Nessuna referenza trovata.")
+        st.write("Non ci sono eventi con questo nome.")
 
 
 # ----------------------------
@@ -169,14 +169,19 @@ def show_billing_page():
                 note = st.text_area('Note', value=seat_info['note'])
                 submit_button = st.form_submit_button(label='Prenota!')
             if submit_button:
-                new_data = {
-                    'prenotato': 'sì',
-                    'nominativo': st.session_state.username.capitalize(),
-                    'note': note
-                }
-                update_seat(selected_seat, new_data)
-                st.success(f"Prenotazione effettuata con successo!")
-                st.rerun()
+                ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
+                info_posto = ref_posto_da_prenotare.get()
+                if info_posto['prenotato'].lower() == 'no':
+                    new_data = {
+                        'prenotato': 'sì',
+                        'nominativo': st.session_state.username.capitalize(),
+                        'note': note
+                    }
+                    update_seat(selected_seat, new_data)
+                    st.success(f"Prenotazione effettuata con successo!")
+                    st.rerun()
+                else:
+                    st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
     st.button("Esci", on_click=logout)
 
 
