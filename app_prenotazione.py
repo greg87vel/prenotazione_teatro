@@ -160,8 +160,7 @@ def show_billing_page(evento):
         st.write(f"**Posto:** {seat_info['posto']}")
         st.write(f"**Posizione:** {seat_info['posizione'].upper()}")
         st.write(f"**Prezzo:** {seat_info['prezzo']} Euro")
-        st.write(f"**Prenotato:** {seat_info['prenotato'].upper()}")
-        if not seat_info['prenotato'].upper() == 'NO':
+        if not (seat_info['prenotato'].upper() == 'NO'):
             st.write(f"**Prenotato da:** {seat_info['nominativo'].upper()}")
             st.write(f"**Note:** {seat_info['note']}")
 
