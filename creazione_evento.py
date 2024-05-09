@@ -80,7 +80,7 @@ def genera_posti(reference):
 
 
 # Riferimento al teatro specifico
-ref = db.reference(f'/{data} - {evento} - {teatro}')
+ref = db.reference(f'/{data}_{evento}_{teatro}')
 
 # Genera e aggiungi posti alla tabella Firebase
 genera_posti(ref)
