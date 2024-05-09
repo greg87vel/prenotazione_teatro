@@ -139,7 +139,7 @@ def show_billing_page():
 
     # Funzione per creare un bottone in base allo stato del posto
     def create_button(seat_info, seat_key):
-        color = '🟩' if seat_info['prenotato'] in ['no', 'NO'] else '🟥'
+        color = '🟩' if seat_info['prenotato'].lower() == 'no' else '🟥'
         return st.button(f"{color}", key=seat_key)
 
     # Disegna la disposizione del teatro usando righe e colonne
@@ -159,12 +159,12 @@ def show_billing_page():
         st.write(f"**Posto:** {seat_info['posto']}")
         st.write(f"**Posizione:** {seat_info['posizione'].upper()}")
         st.write(f"**Prezzo:** {seat_info['prezzo']} Euro")
-        if not (seat_info['prenotato'].upper() == 'NO'):
+        if seat_info['prenotato'].lower() == 'no':
             st.write(f"**Prenotato da:** {seat_info['nominativo'].upper()}")
             st.write(f"**Note:** {seat_info['note']}")
 
         # Form per aggiornare le informazioni di prenotazione
-        if seat_info['prenotato'].upper() == 'NO':
+        if seat_info['prenotato'].lower() == 'no':
             with st.form(key='booking_form'):
                 note = st.text_area('Note', value=seat_info['note'])
                 submit_button = st.form_submit_button(label='Prenota!')
@@ -172,6 +172,8 @@ def show_billing_page():
                 ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
                 info_posto = ref_posto_da_prenotare.get()
                 if info_posto['prenotato'].lower() == 'no':
+                    print(selected_seat)
+                    print(info_posto['prenotato'])
                     st.write(info_posto)
                     import time
                     time.sleep(3)
