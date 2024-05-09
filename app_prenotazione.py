@@ -62,11 +62,12 @@ def load_seats():
 def update_seat(seat_id, data):
     # Update a specific seat data in Firebase
     ref = db.reference(f'/{st.session_state["evento"]}/{seat_id}')
-    if ref.get()['prenotato'].lower() == 'no':
+    current_data = ref.get()
+    if current_data['prenotato'].lower() == 'no':
         ref.update(data)
-        st.success("Prenotazione effettuata con successo!")
-        time.sleep(1.5)
-        st.session_state['selected_seat'] = None
+        return True
+    else:
+        return False
 
 
 # ----------------------------
@@ -106,7 +107,7 @@ def pagina_scelta_evento():
 
         # Crea un pulsante Streamlit per ogni referenza
         for ref in references:
-            if ref in ['CREDENZIALI', 'credenziali']:
+            if ref.lower() == 'credenziali':
                 pass
             elif st.button(ref):
                 st.session_state['evento'] = ref
@@ -174,17 +175,21 @@ def show_billing_page():
                 note = st.text_area('Note', value=seat_info['note'])
                 submit_button = st.form_submit_button(label='Prenota!')
             if submit_button:
-                ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
-                info_posto = ref_posto_da_prenotare.get()
-                if info_posto['prenotato'].lower() == 'no':
-                    new_data = {
-                        'prenotato': 'sì',
-                        'nominativo': st.session_state.username.capitalize(),
-                        'note': note
-                    }
-                    update_seat(selected_seat, new_data)
+                new_data = {
+                    'prenotato': 'sì',
+                    'nominativo': st.session_state.username.capitalize(),
+                    'note': note
+                }
+                success = update_seat(selected_seat, new_data)
+                if success:
+                    st.success("Prenotazione effettuata con successo!")
+                    time.sleep(1.5)
+                    st.session_state['selected_seat'] = None
                     st.rerun()
-                st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da {info_posto['nominativo']}")
+                else:
+                    st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da qualcun altro.")
+                    st.session_state['selected_seat'] = None
+                    st.rerun()
 
     st.button("Esci", on_click=logout)
 
