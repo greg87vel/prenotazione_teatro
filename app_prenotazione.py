@@ -54,7 +54,7 @@ def login(user, password):
 
 def load_seats():
     # Load the seats data from Firebase
-    ref = db.reference('/data_spettacolo_teatro')
+    ref = db.reference(f'/{st.session_state["evento"]}')
     return ref.get()
 
 
@@ -101,7 +101,7 @@ def pagina_scelta_evento():
 
         # Crea un pulsante Streamlit per ogni referenza
         for ref in references:
-            nome_evento = ref.replace('_', ' - ').upper()
+            nome_evento = ref.replace('_', ' - ')
             if nome_evento == 'CREDENZIALI':
                 pass
             elif st.button(nome_evento):
@@ -116,7 +116,7 @@ def pagina_scelta_evento():
 
 def show_billing_page(evento):
     st.success(f"Benvenuto, {st.session_state.username.capitalize()}! 😊")
-    st.success(f"Hai selezionato l'evento: {st.session_state[evento]}")
+    st.success(f"Hai selezionato l'evento: {st.session_state[evento].upper()}")
     # Carica i dati dei posti
     seats_data = load_seats()
     if not seats_data:

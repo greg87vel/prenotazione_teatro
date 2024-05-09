@@ -7,7 +7,7 @@ firebase_admin.initialize_app(credential=cred, options={
     'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
 })
 
-data = '29 GENNAIO 2025'
+data = '29 11 2024'
 evento = 'IL MEDICO DEI PAZZI'
 teatro = 'TEATRO AURORA'
 ultima_lettera = 'F'
@@ -80,7 +80,7 @@ def genera_posti(reference):
 
 
 # Riferimento al teatro specifico
-ref = db.reference(f'/{data}_{evento}_{teatro}')
+ref = db.reference(f'/{data} - {evento} - {teatro}')
 
 # Genera e aggiungi posti alla tabella Firebase
 genera_posti(ref)
