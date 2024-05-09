@@ -87,6 +87,7 @@ def show_login_page():
 
 def pagina_scelta_evento():
     st.success(f"Benvenuto, {st.session_state.username.capitalize()}! 😊")
+    st.subheader("Seleziona l'evento che ti interessa:")
     reference_path = "/"  # Sostituisci con il percorso corretto
 
     # Recupera tutti i nodi figlio sotto il percorso specificato
@@ -115,7 +116,7 @@ def pagina_scelta_evento():
 
 def show_billing_page(evento):
     st.success(f"Benvenuto, {st.session_state.username.capitalize()}! 😊")
-    st.success(f"Evento selezionato: {st.session_state['evento']}")
+    st.success(f"Hai selezionato l'evento: {st.session_state['evento']}")
     # Carica i dati dei posti
     seats_data = load_seats()
     if not seats_data:
@@ -132,6 +133,8 @@ def show_billing_page(evento):
         rows[letter].append(key)
 
     st.write("## Pianta dei Posti (Clicca per selezionare)")
+
+    st.image('palco.png')
 
     selected_seat = st.session_state.get('selected_seat', None)
 
@@ -158,23 +161,24 @@ def show_billing_page(evento):
         st.write(f"**Posizione:** {seat_info['posizione'].upper()}")
         st.write(f"**Prezzo:** {seat_info['prezzo']} Euro")
         st.write(f"**Prenotato:** {seat_info['prenotato'].upper()}")
-        st.write(f"**Nominativo:** {seat_info['nominativo'].upper()}")
-        st.write(f"**Note:** {seat_info['note']}")
+        if not seat_info['prenotato'].upper() == 'NO':
+            st.write(f"**Prenotato da:** {seat_info['nominativo'].upper()}")
+            st.write(f"**Note:** {seat_info['note']}")
 
         # Form per aggiornare le informazioni di prenotazione
-        with st.form(key='booking_form'):
-            note = st.text_area('Note', value=seat_info['note'])
-            submit_button = st.form_submit_button(label='Prenota!')
-
-        if submit_button:
-            new_data = {
-                'prenotato': 'sì',
-                'nominativo': st.session_state.username.capitalize(),
-                'note': note
-            }
-            update_seat(selected_seat, new_data)
-            st.success(f"Prenotazione effettuata con successo!")
-            st.rerun()
+        if seat_info['prenotato'].upper() == 'NO':
+            with st.form(key='booking_form'):
+                note = st.text_area('Note', value=seat_info['note'])
+                submit_button = st.form_submit_button(label='Prenota!')
+            if submit_button:
+                new_data = {
+                    'prenotato': 'sì',
+                    'nominativo': st.session_state.username.capitalize(),
+                    'note': note
+                }
+                update_seat(selected_seat, new_data)
+                st.success(f"Prenotazione effettuata con successo!")
+                st.rerun()
     st.button("Esci", on_click=logout)
 
 
