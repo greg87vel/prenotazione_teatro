@@ -62,7 +62,16 @@ def load_seats():
 def update_seat(seat_id, data):
     # Update a specific seat data in Firebase
     ref = db.reference(f'/{st.session_state["evento"]}/{seat_id}')
-    ref.update(data)
+    if ref.get()['prenotato'].lower() == 'no':
+        ref.update(data)
+        st.success("Prenotazione effettuata con successo!")
+        time.sleep(1.5)
+        st.session_state['selected_seat'] = None
+    else:
+        st.warning(
+            f'Prenotazione non riuscita. Il posto è stato appena prenotato da {ref.get()["nominativo"].upper()}')
+        time.sleep(1.5)
+        st.session_state['selected_seat'] = None
 
 
 # ----------------------------
@@ -179,13 +188,6 @@ def show_billing_page():
                         'note': note
                     }
                     update_seat(selected_seat, new_data)
-                    st.success("Prenotazione effettuata con successo!")
-                    time.sleep(1.5)
-                    st.session_state['selected_seat'] = None
-                    st.rerun()
-                else:
-                    st.warning(f'Prenotazione non riuscita. Il posto è stato appena prenotato da {info_posto["nominativo"].upper()}')
-                    time.sleep(2)
                     st.rerun()
 
     st.button("Esci", on_click=logout)
