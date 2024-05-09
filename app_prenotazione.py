@@ -171,6 +171,9 @@ def show_billing_page():
             if submit_button:
                 ref_posto_da_prenotare = db.reference(f'/{st.session_state["evento"]}/{selected_seat}')
                 info_posto = ref_posto_da_prenotare.get()
+                st.write(info_posto)
+                import time
+                time.sleep(3)
                 if info_posto['prenotato'].lower() == 'no':
                     new_data = {
                         'prenotato': 'sì',
