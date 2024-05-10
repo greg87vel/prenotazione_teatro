@@ -2,12 +2,15 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
 import time
+from fpdf import FPDF
+import os
+import qrcode
 
 # ----------------------------
 # IMPOSTAZIONI
 
 # Configurazione Streamlit
-st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="wide")
+st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered")
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -37,7 +40,6 @@ firebase_credentials = {
     "client_x509_cert_url": st.secrets.FIREBASE_CLIENT_CERT_URL
 }
 
-
 if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_credentials)
     firebase_admin.initialize_app(cred, options={
@@ -48,9 +50,60 @@ if not firebase_admin._apps:
 # ----------------------------
 # UTILS
 
+# Funzione per creare un codice QR
+def generate_qr_code(data, file_path):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    img.save(file_path, "JPEG")
+
+
+class PDF(FPDF):
+
+    def header(self):
+        logo_path = 'logoROTcol.jpg'
+        # Aggiungi il logo centrato in alto
+        if os.path.exists(logo_path):
+            logo_width = 30
+            page_width = self.w
+            x_position = (page_width - logo_width) / 2
+            self.image(logo_path, x=x_position, y=10, w=logo_width)
+            self.ln(40)  # Spazio extra sotto il logo
+        self.set_font("Arial", "B", 20)
+        self.cell(0, 10, "A.P.S.""I DILETTANTI ALL'OPERA""", 0, 1, "C")
+        self.ln(10)
+
+    def chapter_title(self, title):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, f"{title}", 0, 1, "L")
+        self.ln(5)
+
+    def chapter_body(self, body):
+        self.set_font("Arial", "", 12)
+        self.multi_cell(0, 10, body)
+        self.ln()
+
+    def add_qr_code(self, path, x=None, y=None, w=40):
+        if os.path.exists(path):
+            if x is None:
+                x = (self.w - w) / 2
+            if y is None:
+                y = self.get_y()
+            self.image(path, x=x, y=y, w=w)
+            self.ln(10)
+
+
 def logout():
     st.session_state.logged_in = False
     st.session_state.username = ""
+    st.session_state['evento'] = ''
+    st.session_state['selected_seat'] = None
 
 
 def login(user, password):
@@ -160,19 +213,49 @@ def show_billing_page():
     selected_seat = st.session_state.get('selected_seat', None)
 
     # Genera la griglia HTML
-    html_grid = "<div style='display: grid; grid-template-columns: repeat(auto-fill, 50px); gap: 10px;'>"
+    def select_seat_callback(seat):
+        st.session_state['selected_seat'] = seat
+        st.rerun()
 
     for row, seats in rows.items():
-        for seat in seats:
+        num_columns = len(seats)
+        cols = st.columns(num_columns)
+        for idx, seat in enumerate(seats):
             seat_info = seats_data[seat]
-            color = '🟩' if seat_info['prenotato'].lower() == 'no' else '🟥'
-            html_grid += f"<div style='text-align: center;'><a href='?seat={seat}' style='text-decoration: none;'>{color}</a></div>"
+            if seat_info['prenotato'].lower() == 'no':
+                cols[idx].button("🟩", help=f'{seat_info["posto"]} - LIBERO', key=seat,
+                                 on_click=select_seat_callback, args=(seat,), disabled=False)
+            else:
+                if st.session_state.username.lower() == seat_info['nominativo'].lower():
+                    if seat_info["note"].strip() == '':
+                        cols[idx].button('🟦',
+                                         help=f'''\n
+                                         Posto: {seat_info["posto"]}\n
+                                         Prenotato da: {seat_info["nominativo"].upper()}''',
+                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                    else:
+                        cols[idx].button('🟦',
+                                         help=f'''\n
+                                         Posto: {seat_info["posto"]}\n
+                                         Prenotato da: {seat_info["nominativo"].upper()}\n
+                                         Note: {seat_info["note"]}''',
+                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                else:
+                    if seat_info["note"].strip() == '':
+                        cols[idx].button('🟥',
+                                         help=f'''\n
+                                         Posto: {seat_info["posto"]}\n
+                                         Prenotato da: {seat_info["nominativo"].upper()}''',
+                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
+                    else:
+                        cols[idx].button('🟥',
+                                         help=f'''\n
+                                         Posto: {seat_info["posto"]}\n
+                                         Prenotato da: {seat_info["nominativo"].upper()}\n
+                                         Note: {seat_info["note"]}''',
+                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
 
-    html_grid += "</div>"
-
-    st.markdown(html_grid, unsafe_allow_html=True)
-
-    selected_seat = st.experimental_get_query_params().get('seat', [None])[0]
+    selected_seat = st.session_state.get('selected_seat', None)
 
     # Mostra i dettagli del posto selezionato e il form di prenotazione
     if selected_seat:
@@ -184,6 +267,55 @@ def show_billing_page():
         if seat_info['prenotato'].lower() == 'sì':
             st.write(f"**Prenotato da:** {seat_info['nominativo'].upper()}")
             st.write(f"**Note:** {seat_info['note']}")
+            if seat_info['nominativo'].lower() == st.session_state.username.lower():
+                project_folder = os.path.dirname(os.path.abspath(__file__))
+                file_path = os.path.join(project_folder,
+                                         f"Ricevuta Prenotazione - POSTO: {seat_info['posto']} - {st.session_state['evento']}.pdf")
+                qr_code_path = os.path.join(project_folder,
+                                            f"qrcode - POSTO: {seat_info['posto']} - {st.session_state['evento']}.jpg")
+                # Crea file PDF se non esiste
+                if not os.path.exists(file_path):
+
+                    pdf = PDF()
+                    pdf.add_page()
+                    pdf.set_auto_page_break(auto=True, margin=15)
+
+                    pdf.chapter_title("RICEVUTA DI PRENOTAZIONE")
+                    if seat_info['note'].strip() == '':
+                        pdf.chapter_body(f"Evento: {st.session_state['evento']}\n"
+                                         f"Posto: {seat_info['posto']}")
+
+                        qr_text = (f'RICEVUTA DI PRENOTAZIONE\n'
+                                   f'Evento: {st.session_state["evento"]}\n'
+                                   f'Posto: {seat_info["posto"]}')
+
+                        generate_qr_code(qr_text, qr_code_path)
+                    else:
+                        pdf.chapter_body(f"Evento: {st.session_state['evento']}\n"
+                                         f"Posto: {seat_info['posto']}\n"
+                                         f"Note: {seat_info['note']}")
+
+                        qr_text = (f'RICEVUTA DI PRENOTAZIONE\n'
+                                   f'Evento: {st.session_state["evento"]}\n'
+                                   f'Posto: {seat_info["posto"]}\n'
+                                   f"Note: {seat_info['note']}")
+
+                        generate_qr_code(qr_text, qr_code_path)
+
+                    pdf.add_qr_code(qr_code_path)
+
+                    pdf.output(file_path)
+
+                # Leggi il contenuto del file PDF
+                with open(file_path, "rb") as file:
+                    file_data = file.read()
+
+                st.download_button(
+                    label="Scarica Ricevuta",
+                    help=f"Scarica la Ricevuta di Prenotazione per il Posto: {seat_info['posto']}",
+                    data=file_data,
+                    file_name=f"Ricevuta Prenotazione - POSTO: {seat_info['posto']} - {st.session_state['evento']}.pdf",
+                    mime="application/pdf")
 
         # Form per aggiornare le informazioni di prenotazione
         if seat_info['prenotato'].lower() == 'no':
@@ -200,11 +332,11 @@ def show_billing_page():
                 if success:
                     st.success("Prenotazione effettuata con successo!")
                     time.sleep(1.5)
-                    st.experimental_set_query_params(seat=None)
+                    st.session_state['selected_seat'] = None
                     st.rerun()
                 else:
                     st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da qualcun altro.")
-                    st.experimental_set_query_params(seat=None)
+                    st.session_state['selected_seat'] = None
                     st.rerun()
 
     st.button("Esci", on_click=logout)
