@@ -2,10 +2,25 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
 import time
-import toml
 
 # ----------------------------
 # IMPOSTAZIONI
+
+# Configurazione Streamlit
+st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭")
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
+if "evento" not in st.session_state:
+    st.session_state['evento'] = ''
+if "selected_seat" not in st.session_state:
+    st.session_state['selected_seat'] = None
+
+# Titolo
+st.image('logoROTcol.png', width=200)
+st.title("Servizio di prenotazione posti")
 
 # Configura Firebase Admin SDK
 
@@ -29,21 +44,6 @@ if not firebase_admin._apps:
         'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
     })
 
-# Configurazione Streamlit
-st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭")
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "evento" not in st.session_state:
-    st.session_state['evento'] = ''
-if "selected_seat" not in st.session_state:
-    st.session_state['selected_seat'] = None
-
-# Titolo
-st.image('logoROTcol.png', width=200)
-st.title("Servizio di prenotazione posti")
 
 
 # ----------------------------
