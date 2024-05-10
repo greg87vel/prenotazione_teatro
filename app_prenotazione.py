@@ -2,13 +2,38 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
 import time
-import os
 
 # ----------------------------
 # IMPOSTAZIONI
 
 # Configurazione Streamlit
-st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭")
+st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="wide")
+
+st.markdown(
+   """
+   <style>
+   @media screen and (max-width: 768px) {
+       .main {
+           width: 100% !important;
+       }
+
+       .stButton > button {
+           width: 100% !important;
+           margin-bottom: 10px;
+       }
+
+       .stForm {
+           width: 100% !important;
+       }
+
+       .stImage {
+           width: 100% !important;
+       }
+   }
+   </style>
+   """,
+   unsafe_allow_html=True
+)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
