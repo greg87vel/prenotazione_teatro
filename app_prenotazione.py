@@ -50,6 +50,13 @@ if not firebase_admin._apps:
 # ----------------------------
 # UTILS
 
+
+# Genera la griglia HTML
+def select_seat_callback(seat):
+    st.session_state['selected_seat'] = seat
+    st.rerun()
+
+
 # Funzione per creare un codice QR
 def generate_qr_code(data, file_path):
     qr = qrcode.QRCode(
@@ -214,11 +221,6 @@ def show_billing_page():
 
     st.image('immagini/palco.png')
 
-    # Genera la griglia HTML
-    def select_seat_callback(seat):
-        st.session_state['selected_seat'] = seat
-        st.rerun()
-
     for row, seats in rows.items():
         num_columns = len(seats)
         cols = st.columns(num_columns)
@@ -246,7 +248,7 @@ def show_billing_page():
                                          help=f'''\n
                                          Posto: {seat_info["posto"]}\n
                                          Prenotato da: {seat_info["nominativo"].upper()}''',
-                                         key=seat, on_click=select_seat_callback, args=seat, disabled=False)
+                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                     else:
                         cols[idx].button('🟦',
                                          help=f'''\n
