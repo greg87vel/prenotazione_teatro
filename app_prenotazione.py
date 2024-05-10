@@ -5,6 +5,9 @@ import time
 from fpdf import FPDF
 import os
 import qrcode
+from PIL import Image
+import base64
+import io
 
 # ----------------------------
 # IMPOSTAZIONI
@@ -22,8 +25,25 @@ if "selected_seat" not in st.session_state:
     st.session_state['selected_seat'] = None
 
 # Titolo
-st.image('immagini/logoROTcol.png', width=200)
-st.title("Servizio di prenotazione posti")
+
+logo_path = 'immagini/logoROTcol.png'
+img = Image.open(logo_path)
+
+# Converti l'immagine in base64
+buffered = io.BytesIO()
+img.save(buffered, format="PNG")
+encoded_img = base64.b64encode(buffered.getvalue()).decode()
+
+# Crea l'HTML per centrare l'immagine
+html_code = f"""
+<div style="text-align: center;">
+    <img src="data:image/png;base64,{encoded_img}" width="200">
+    <h1 style="font-family: Arial, sans-serif; margin-top: 20px;">Servizio di prenotazione posti</h1>
+</div>
+"""
+
+# Usa st.markdown per visualizzare l'HTML
+st.markdown(html_code, unsafe_allow_html=True)
 
 # Configura Firebase Admin SDK
 
@@ -89,7 +109,7 @@ class PDF(FPDF):
     def chapter_title(self, title):
         self.set_font("Arial", "B", 16)
         self.cell(0, 10, f"{title}", 0, 1, "C")
-        self.ln(5)
+        self.ln(10)
 
     def chapter_body_key(self, body):
         self.set_font("Arial", "", 12)
@@ -243,32 +263,41 @@ def show_billing_page():
                                      on_click=select_seat_callback, args=(seat,), disabled=False)
             else:
                 if st.session_state.username.lower() == seat_info['nominativo'].lower():
-                    if seat_info["note"].strip() == '':
+                    if st.session_state['selected_seat'] == seat:
+                        if seat_info["note"].strip() == '':
+                            cols[idx].button('⬜️',
+                                             help=f'''Posto: {seat_info["posto"]}\n
+                                             Prenotato da: {seat_info["nominativo"].upper()}''',
+                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                        else:
+                            cols[idx].button('⬜️',
+                                             help=f'Posto: {seat_info["posto"]} \n  '
+                                                  f'Prenotato da: {seat_info["nominativo"].upper()}\n'
+                                                  f'Note: {seat_info["note"]}',
+                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+
+                    elif seat_info["note"].strip() == '':
                         cols[idx].button('🟦',
-                                         help=f'''\n
-                                         Posto: {seat_info["posto"]}\n
+                                         help=f'''Posto: {seat_info["posto"]}\n
                                          Prenotato da: {seat_info["nominativo"].upper()}''',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                     else:
                         cols[idx].button('🟦',
-                                         help=f'''\n
-                                         Posto: {seat_info["posto"]}\n
-                                         Prenotato da: {seat_info["nominativo"].upper()}\n
-                                         Note: {seat_info["note"]}''',
+                                         help=f'Posto: {seat_info["posto"]} \n  '
+                                              f'Prenotato da: {seat_info["nominativo"].upper()}\n'
+                                              f'Note: {seat_info["note"]}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                 else:
                     if seat_info["note"].strip() == '':
                         cols[idx].button('🟥',
-                                         help=f'''\n
-                                         Posto: {seat_info["posto"]}\n
-                                         Prenotato da: {seat_info["nominativo"].upper()}''',
+                                         help=f'''Posto: {seat_info["posto"]}\n
+                                                  Prenotato da: {seat_info["nominativo"].upper()}''',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
                     else:
                         cols[idx].button('🟥',
-                                         help=f'''\n
-                                         Posto: {seat_info["posto"]}\n
-                                         Prenotato da: {seat_info["nominativo"].upper()}\n
-                                         Note: {seat_info["note"]}''',
+                                         help=f'Posto: {seat_info["posto"]} \n  '
+                                              f'Prenotato da: {seat_info["nominativo"].upper()}\n'
+                                              f'Note: {seat_info["note"]}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
 
     selected_seat = st.session_state.get('selected_seat', None)
@@ -355,12 +384,11 @@ def show_billing_page():
                 success = update_seat(selected_seat, new_data)
                 if success:
                     st.success("Prenotazione effettuata con successo!")
-                    time.sleep(1.5)
-                    st.session_state['selected_seat'] = None
+                    time.sleep(2)
                     st.rerun()
                 else:
                     st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da qualcun altro.")
-                    st.session_state['selected_seat'] = None
+                    time.sleep(2)
                     st.rerun()
 
     st.button("Esci", on_click=logout)
