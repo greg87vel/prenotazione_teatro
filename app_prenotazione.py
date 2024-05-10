@@ -2,13 +2,29 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
 import time
+import toml
 
 # ----------------------------
 # IMPOSTAZIONI
 
 # Configura Firebase Admin SDK
+
+firebase_secrets = toml.load('secrets.toml')
+firebase_credentials = {
+    "type": firebase_secrets["FIREBASE_TYPE"],
+    "project_id": firebase_secrets["FIREBASE_PROJECT_ID"],
+    "private_key_id": firebase_secrets["FIREBASE_PRIVATE_KEY_ID"],
+    "private_key": firebase_secrets["FIREBASE_PRIVATE_KEY"].replace('\\n', '\n'),
+    "client_email": firebase_secrets["FIREBASE_CLIENT_EMAIL"],
+    "client_id": firebase_secrets["FIREBASE_CLIENT_ID"],
+    "auth_uri": firebase_secrets["FIREBASE_AUTH_URI"],
+    "token_uri": firebase_secrets["FIREBASE_TOKEN_URI"],
+    "auth_provider_x509_cert_url": firebase_secrets["FIREBASE_AUTH_PROVIDER_CERT_URL"],
+    "client_x509_cert_url": firebase_secrets["FIREBASE_CLIENT_CERT_URL"]
+}
+
 if not firebase_admin._apps:
-    cred = credentials.Certificate('cred-greg.json')
+    cred = credentials.Certificate(firebase_credentials)
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
     })
@@ -47,7 +63,8 @@ def login(user, password):
         return False
 
     for credential in credentials:
-        if credential and credential.get('user').lower() == user.lower() and credential.get('password').lower() == password.lower():
+        if credential and credential.get('user').lower() == user.lower() and credential.get(
+                'password').lower() == password.lower():
             st.session_state.logged_in = True
             return True
     return False
