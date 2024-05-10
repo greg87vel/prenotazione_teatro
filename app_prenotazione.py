@@ -9,32 +9,6 @@ import time
 # Configurazione Streamlit
 st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="wide")
 
-st.markdown(
-   """
-   <style>
-   @media screen and (max-width: 768px) {
-       .main {
-           width: 100% !important;
-       }
-
-       .stButton > button {
-           width: 100% !important;
-           margin-bottom: 10px;
-       }
-
-       .stForm {
-           width: 100% !important;
-       }
-
-       .stImage {
-           width: 100% !important;
-       }
-   }
-   </style>
-   """,
-   unsafe_allow_html=True
-)
-
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -69,7 +43,6 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
     })
-
 
 
 # ----------------------------
@@ -186,20 +159,20 @@ def show_billing_page():
 
     selected_seat = st.session_state.get('selected_seat', None)
 
-    # Funzione per creare un bottone in base allo stato del posto
-    def create_button(seat_info, seat_key):
-        color = '🟩' if seat_info['prenotato'].lower() == 'no' else '🟥'
-        return st.button(f"{color}", key=seat_key)
+    # Genera la griglia HTML
+    html_grid = "<div style='display: grid; grid-template-columns: repeat(auto-fill, 50px); gap: 10px;'>"
 
-    # Disegna la disposizione del teatro usando righe e colonne
     for row, seats in rows.items():
-        cols = st.columns(len(seats))
-        for idx, seat in enumerate(seats):
+        for seat in seats:
             seat_info = seats_data[seat]
-            with cols[idx]:
-                if create_button(seat_info, seat):
-                    selected_seat = seat
-                    st.session_state['selected_seat'] = seat
+            color = '🟩' if seat_info['prenotato'].lower() == 'no' else '🟥'
+            html_grid += f"<div style='text-align: center;'><a href='?seat={seat}' style='text-decoration: none;'>{color}</a></div>"
+
+    html_grid += "</div>"
+
+    st.markdown(html_grid, unsafe_allow_html=True)
+
+    selected_seat = st.experimental_get_query_params().get('seat', [None])[0]
 
     # Mostra i dettagli del posto selezionato e il form di prenotazione
     if selected_seat:
@@ -227,11 +200,11 @@ def show_billing_page():
                 if success:
                     st.success("Prenotazione effettuata con successo!")
                     time.sleep(1.5)
-                    st.session_state['selected_seat'] = None
+                    st.experimental_set_query_params(seat=None)
                     st.rerun()
                 else:
                     st.warning(f"Prenotazione NON effettuata. Il posto è stato appena prenotato da qualcun altro.")
-                    st.session_state['selected_seat'] = None
+                    st.experimental_set_query_params(seat=None)
                     st.rerun()
 
     st.button("Esci", on_click=logout)
