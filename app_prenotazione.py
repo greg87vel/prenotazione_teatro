@@ -43,7 +43,7 @@ if "selected_seat" not in st.session_state:
 
 # Titolo
 st.image('logoROTcol.png', width=200)
-st.title("Servizio interno di prenotazione posti")
+st.title("Servizio di prenotazione posti")
 
 
 # ----------------------------
