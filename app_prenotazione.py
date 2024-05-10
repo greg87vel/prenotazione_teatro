@@ -22,7 +22,7 @@ if "selected_seat" not in st.session_state:
     st.session_state['selected_seat'] = None
 
 # Titolo
-st.image('logoROTcol.png', width=200)
+st.image('immagini/logoROTcol.png', width=200)
 st.title("Servizio di prenotazione posti")
 
 # Configura Firebase Admin SDK
@@ -67,7 +67,7 @@ def generate_qr_code(data, file_path):
 class PDF(FPDF):
 
     def header(self):
-        logo_path = 'logoROTcol.jpg'
+        logo_path = 'immagini/logoROTcol.jpg'
         # Aggiungi il logo centrato in alto
         if os.path.exists(logo_path):
             logo_width = 30
@@ -76,16 +76,20 @@ class PDF(FPDF):
             self.image(logo_path, x=x_position, y=10, w=logo_width)
             self.ln(40)  # Spazio extra sotto il logo
         self.set_font("Arial", "B", 20)
-        self.cell(0, 10, "A.P.S.""I DILETTANTI ALL'OPERA""", 0, 1, "C")
+        self.cell(0, 10, "A.P.S. 'I DILETTANTI ALL'OPERA'", 0, 1, "C")
         self.ln(10)
 
     def chapter_title(self, title):
-        self.set_font("Arial", "B", 12)
-        self.cell(0, 10, f"{title}", 0, 1, "L")
+        self.set_font("Arial", "B", 16)
+        self.cell(0, 10, f"{title}", 0, 1, "C")
         self.ln(5)
 
-    def chapter_body(self, body):
+    def chapter_body_key(self, body):
         self.set_font("Arial", "", 12)
+        self.multi_cell(0, 10, body)
+
+    def chapter_body_value(self, body):
+        self.set_font("Arial", "B", 12)
         self.multi_cell(0, 10, body)
         self.ln()
 
@@ -208,9 +212,7 @@ def show_billing_page():
 
     st.write("## Pianta dei Posti (Clicca per selezionare)")
 
-    st.image('palco.png')
-
-    selected_seat = st.session_state.get('selected_seat', None)
+    st.image('immagini/palco.png')
 
     # Genera la griglia HTML
     def select_seat_callback(seat):
@@ -223,8 +225,20 @@ def show_billing_page():
         for idx, seat in enumerate(seats):
             seat_info = seats_data[seat]
             if seat_info['prenotato'].lower() == 'no':
-                cols[idx].button("🟩", help=f'{seat_info["posto"]} - LIBERO', key=seat,
-                                 on_click=select_seat_callback, args=(seat,), disabled=False)
+                if st.session_state['selected_seat'] == seat:
+                    cols[idx].button("🟧",
+                                     help=f'''\n
+                                     Posto: {seat_info["posto"]}\n
+                                     SELEZIONATO''',
+                                     key=seat,
+                                     on_click=select_seat_callback, args=(seat,), disabled=False)
+                else:
+                    cols[idx].button("🟩",
+                                     help=f'''\n
+                                     Posto: {seat_info["posto"]}\n
+                                     LIBERO''',
+                                     key=seat,
+                                     on_click=select_seat_callback, args=(seat,), disabled=False)
             else:
                 if st.session_state.username.lower() == seat_info['nominativo'].lower():
                     if seat_info["note"].strip() == '':
@@ -232,7 +246,7 @@ def show_billing_page():
                                          help=f'''\n
                                          Posto: {seat_info["posto"]}\n
                                          Prenotato da: {seat_info["nominativo"].upper()}''',
-                                         key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                                         key=seat, on_click=select_seat_callback, args=seat, disabled=False)
                     else:
                         cols[idx].button('🟦',
                                          help=f'''\n
@@ -263,16 +277,15 @@ def show_billing_page():
         st.write(f"### Dettagli del Posto Selezionato ({selected_seat})")
         st.write(f"**Posto:** {seat_info['posto']}")
         st.write(f"**Posizione:** {seat_info['posizione'].upper()}")
-        st.write(f"**Prezzo:** {seat_info['prezzo']} Euro")
         if seat_info['prenotato'].lower() == 'sì':
             st.write(f"**Prenotato da:** {seat_info['nominativo'].upper()}")
             st.write(f"**Note:** {seat_info['note']}")
             if seat_info['nominativo'].lower() == st.session_state.username.lower():
                 project_folder = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(project_folder,
-                                         f"Ricevuta Prenotazione - POSTO: {seat_info['posto']} - {st.session_state['evento']}.pdf")
+                                         f"pdf/Ricevuta Prenotazione - POSTO: {seat_info['posto']} - {st.session_state['evento']}.pdf")
                 qr_code_path = os.path.join(project_folder,
-                                            f"qrcode - POSTO: {seat_info['posto']} - {st.session_state['evento']}.jpg")
+                                            f"qr/qrcode - POSTO: {seat_info['posto']} - {st.session_state['evento']}.jpg")
                 # Crea file PDF se non esiste
                 if not os.path.exists(file_path):
 
@@ -282,8 +295,12 @@ def show_billing_page():
 
                     pdf.chapter_title("RICEVUTA DI PRENOTAZIONE")
                     if seat_info['note'].strip() == '':
-                        pdf.chapter_body(f"Evento: {st.session_state['evento']}\n"
-                                         f"Posto: {seat_info['posto']}")
+                        pdf.chapter_body_key("Evento")
+                        pdf.chapter_body_value(st.session_state['evento'])
+                        pdf.chapter_body_key("Posto")
+                        pdf.chapter_body_value(seat_info['posto'])
+                        pdf.chapter_body_key("Prenotato da")
+                        pdf.chapter_body_value(seat_info['nominativo'])
 
                         qr_text = (f'RICEVUTA DI PRENOTAZIONE\n'
                                    f'Evento: {st.session_state["evento"]}\n'
@@ -291,9 +308,14 @@ def show_billing_page():
 
                         generate_qr_code(qr_text, qr_code_path)
                     else:
-                        pdf.chapter_body(f"Evento: {st.session_state['evento']}\n"
-                                         f"Posto: {seat_info['posto']}\n"
-                                         f"Note: {seat_info['note']}")
+                        pdf.chapter_body_key("Evento")
+                        pdf.chapter_body_value(st.session_state['evento'])
+                        pdf.chapter_body_key("Posto")
+                        pdf.chapter_body_value(seat_info['posto'])
+                        pdf.chapter_body_key("Prenotato da")
+                        pdf.chapter_body_value(seat_info['nominativo'])
+                        pdf.chapter_body_key("Note")
+                        pdf.chapter_body_value(seat_info['note'])
 
                         qr_text = (f'RICEVUTA DI PRENOTAZIONE\n'
                                    f'Evento: {st.session_state["evento"]}\n'
