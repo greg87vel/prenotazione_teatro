@@ -24,6 +24,14 @@ if "evento" not in st.session_state:
 if "selected_seat" not in st.session_state:
     st.session_state['selected_seat'] = None
 
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # Titolo
 
 logo_path = 'immagini/logoROTcol.png'
