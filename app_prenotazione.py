@@ -136,6 +136,9 @@ def logout():
     st.session_state['evento'] = ''
     st.session_state['selected_seat'] = None
 
+def esci_evento():
+    st.session_state['evento'] = ''
+
 
 def login(user, password):
     ref_credenziali = db.reference('/credenziali')
@@ -248,12 +251,15 @@ def show_billing_page():
             seat_info = seats_data[seat]
             if seat_info['prenotato'].lower() == 'no':
                 if st.session_state['selected_seat'] == seat:
-                    cols[idx].button("🟧",
+                    cols[idx].button("🟩",
                                      help=f'''\n
                                      Posto: {seat_info["posto"]}\n
                                      SELEZIONATO''',
                                      key=seat,
-                                     on_click=select_seat_callback, args=(seat,), disabled=False)
+                                     on_click=select_seat_callback,
+                                     args=(seat,),
+                                     disabled=False,
+                                     type='primary')
                 else:
                     cols[idx].button("🟩",
                                      help=f'''\n
@@ -265,16 +271,18 @@ def show_billing_page():
                 if st.session_state.username.lower() == seat_info['nominativo'].lower():
                     if st.session_state['selected_seat'] == seat:
                         if seat_info["note"].strip() == '':
-                            cols[idx].button('⬜️',
+                            cols[idx].button('🟦',
                                              help=f'''Posto: {seat_info["posto"]}\n
                                              Prenotato da: {seat_info["nominativo"].upper()}''',
-                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False,
+                                             type='primary')
                         else:
-                            cols[idx].button('⬜️',
+                            cols[idx].button('🟦',
                                              help=f'Posto: {seat_info["posto"]} \n  '
                                                   f'Prenotato da: {seat_info["nominativo"].upper()}\n'
                                                   f'Note: {seat_info["note"]}',
-                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
+                                             key=seat, on_click=select_seat_callback, args=(seat,), disabled=False,
+                                             type='primary')
 
                     elif seat_info["note"].strip() == '':
                         cols[idx].button('🟦',
@@ -391,6 +399,7 @@ def show_billing_page():
                     time.sleep(2)
                     st.rerun()
 
+    st.button('Cambia Evento', on_click=esci_evento)
     st.button("Esci", on_click=logout)
 
 

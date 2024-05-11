@@ -36,11 +36,14 @@ def generate_easy_username_password_pairs(names):
 
 
 # Lista dei nomi forniti
+
 names = [
-    'Eugenio', 'Giuseppe', 'Matilde', 'Pietro',
-    'Giacomo', 'Francesca', 'Antonietta',
-    'Bartolomeo', 'Cristian', 'Graziano', 'Gregory', 'Settimio'
+    #'Eugenio', 'Giuseppe', 'Matilde', 'Pietro',
+    #'Giacomo', 'Francesca', 'Antonietta',
+    #'Bartolomeo', 'Cristian', 'Graziano', 'Gregory', 'Settimio',
+    'Alessio'
 ]
+
 
 # Genera e salva le combinazioni di username e password
 username_password_pairs = generate_easy_username_password_pairs(names)

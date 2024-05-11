@@ -7,7 +7,7 @@ firebase_admin.initialize_app(credential=cred, options={
     'databaseURL': 'https://prenotazione-teatro-default-rtdb.europe-west1.firebasedatabase.app/'
 })
 
-data = '29 11 2024'
+data = '30 NOVEMBRE 2024'
 evento = 'IL MEDICO DEI PAZZI'
 teatro = 'TEATRO AURORA'
 ultima_lettera = 'F'
