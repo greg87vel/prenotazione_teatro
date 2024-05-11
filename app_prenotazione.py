@@ -290,8 +290,8 @@ def show_billing_page():
 
                     elif seat_info["note"].strip() == '':
                         cols[idx].button('🟦',
-                                         help=f'''Posto: {seat_info["posto"]}\n
-                                         Prenotato da: {seat_info["nominativo"].upper()}''',
+                                         help=f'Posto: {seat_info["posto"]} - '
+                                         'Prenotato da: {seat_info["nominativo"].upper()}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                     else:
                         cols[idx].button('🟦',
@@ -302,13 +302,13 @@ def show_billing_page():
                 else:
                     if seat_info["note"].strip() == '':
                         cols[idx].button('🟥',
-                                         help=f'''Posto: {seat_info["posto"]}\n
-                                                  Prenotato da: {seat_info["nominativo"].upper()}''',
+                                         help=f'Posto: {seat_info["posto"]} - '
+                                              f'Prenotato da: {seat_info["nominativo"].upper()}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
                     else:
                         cols[idx].button('🟥',
-                                         help=f'Posto: {seat_info["posto"]} \n  '
-                                              f'Prenotato da: {seat_info["nominativo"].upper()}\n'
+                                         help=f'Posto: {seat_info["posto"]} - '
+                                              f'Prenotato da: {seat_info["nominativo"].upper()} - '
                                               f'Note: {seat_info["note"].upper()}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
 
