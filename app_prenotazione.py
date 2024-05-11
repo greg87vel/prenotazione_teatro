@@ -12,6 +12,12 @@ import io
 # ----------------------------
 # IMPOSTAZIONI
 
+if not os.path.exists('qr'):
+    os.makedirs('qr')
+
+if not os.path.exists('pdf'):
+    os.makedirs('pdf')
+
 # Configurazione Streamlit
 st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered")
 
