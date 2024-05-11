@@ -260,9 +260,7 @@ def show_billing_page():
             if seat_info['prenotato'].lower() == 'no':
                 if st.session_state['selected_seat'] == seat:
                     cols[idx].button("🟩",
-                                     help=f'''\n
-                                     Posto: {seat_info["posto"]}\n
-                                     SELEZIONATO''',
+                                     help=f'Posto: {seat_info["posto"]} - LIBERO',
                                      key=seat,
                                      on_click=select_seat_callback,
                                      args=(seat,),
@@ -270,9 +268,7 @@ def show_billing_page():
                                      type='primary')
                 else:
                     cols[idx].button("🟩",
-                                     help=f'''\n
-                                     Posto: {seat_info["posto"]}\n
-                                     LIBERO''',
+                                     help=f'Posto: {seat_info["posto"]} - LIBERO',
                                      key=seat,
                                      on_click=select_seat_callback, args=(seat,), disabled=False)
             else:
@@ -280,15 +276,15 @@ def show_billing_page():
                     if st.session_state['selected_seat'] == seat:
                         if seat_info["note"].strip() == '':
                             cols[idx].button('🟦',
-                                             help=f'''Posto: {seat_info["posto"]}\n
-                                             Prenotato da: {seat_info["nominativo"].upper()}''',
+                                             help=f'Posto: {seat_info["posto"]} - '
+                                             'Prenotato da: {seat_info["nominativo"].upper()}',
                                              key=seat, on_click=select_seat_callback, args=(seat,), disabled=False,
                                              type='primary')
                         else:
                             cols[idx].button('🟦',
-                                             help=f'Posto: {seat_info["posto"]} \n  '
-                                                  f'Prenotato da: {seat_info["nominativo"].upper()}\n'
-                                                  f'Note: {seat_info["note"]}',
+                                             help=f'Posto: {seat_info["posto"]} - '
+                                                  f'Prenotato da: {seat_info["nominativo"].upper()} - '
+                                                  f'Note: {seat_info["note"].upper()}',
                                              key=seat, on_click=select_seat_callback, args=(seat,), disabled=False,
                                              type='primary')
 
@@ -299,9 +295,9 @@ def show_billing_page():
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                     else:
                         cols[idx].button('🟦',
-                                         help=f'Posto: {seat_info["posto"]} \n  '
-                                              f'Prenotato da: {seat_info["nominativo"].upper()}\n'
-                                              f'Note: {seat_info["note"]}',
+                                         help=f'Posto: {seat_info["posto"]} - '
+                                              f'Prenotato da: {seat_info["nominativo"].upper()} - '
+                                              f'Note: {seat_info["note"].upper()}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=False)
                 else:
                     if seat_info["note"].strip() == '':
@@ -313,7 +309,7 @@ def show_billing_page():
                         cols[idx].button('🟥',
                                          help=f'Posto: {seat_info["posto"]} \n  '
                                               f'Prenotato da: {seat_info["nominativo"].upper()}\n'
-                                              f'Note: {seat_info["note"]}',
+                                              f'Note: {seat_info["note"].upper()}',
                                          key=seat, on_click=select_seat_callback, args=(seat,), disabled=True)
 
     selected_seat = st.session_state.get('selected_seat', None)
