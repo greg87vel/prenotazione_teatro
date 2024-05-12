@@ -19,7 +19,9 @@ if not os.path.exists('pdf'):
     os.makedirs('pdf')
 
 # Configurazione Streamlit
-st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered")
+st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered", theme={
+        "primaryColor": "#FFFF00",
+    })
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -38,12 +40,6 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Impostazione del tema
-st.set_page_config(
-    theme={
-        "primaryColor": "#FFFF00",
-    }
-)
 
 # Titolo
 
