@@ -88,7 +88,6 @@ if not firebase_admin._apps:
 # Genera la griglia HTML
 def select_seat_callback(seat):
     st.session_state['selected_seat'] = seat
-    st.rerun()
 
 
 # Funzione per creare un codice QR
