@@ -38,6 +38,13 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# Impostazione del tema
+st.set_page_config(
+    theme={
+        "primaryColor": "#FFFF00",
+    }
+)
+
 # Titolo
 
 logo_path = 'immagini/logoROTcol.png'
