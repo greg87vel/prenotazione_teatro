@@ -325,11 +325,14 @@ def show_billing_page():
     if selected_seat:
         seat_info = seats_data[selected_seat]
         st.write(f"### Dettagli del Posto Selezionato ({selected_seat})")
-        st.write(f"Posto:   {seat_info['posto']}")
-        st.write(f"Posizione:   {seat_info['posizione'].upper()}")
+        st.write(f"Posto: {seat_info['posto']}")
+        st.write(f"Posizione: {seat_info['posizione'].upper()}")
         if seat_info['prenotato'].lower() == 'sì':
-            st.write(f"Prenotato da:   {seat_info['nominativo'].upper()}")
-            st.write(f"Note:   {seat_info['note'].upper()}")
+            st.write(f"Prenotato da: {seat_info['nominativo'].upper()}")
+            if seat_info['note'].strip() == '':
+                st.write(f"Note: NESSUNA NOTA")
+            else:
+                st.write(f"Note: {seat_info['note'].upper()}")
             if seat_info['nominativo'].lower() == st.session_state.username.lower():
                 project_folder = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(project_folder,
