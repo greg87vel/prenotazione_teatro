@@ -330,7 +330,7 @@ def show_billing_page():
         if seat_info['prenotato'].lower() == 'sì':
             st.write(f"Prenotato da: {seat_info['nominativo'].upper()}")
             if seat_info['note'].strip() == '':
-                st.write(f"Note: NESSUNA NOTA")
+                st.write(f"Note: -")
             else:
                 st.write(f"Note: {seat_info['note'].upper()}")
             if seat_info['nominativo'].lower() == st.session_state.username.lower():
