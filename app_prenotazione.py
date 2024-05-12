@@ -253,7 +253,9 @@ def show_billing_page():
             rows[letter] = []
         rows[letter].append(key)
 
-    st.write("## Pianta dei Posti (Clicca per selezionare)")
+    st.markdown("""
+        <h2 style='text-align: center;'>Pianta dei Posti (Clicca per selezionare)</h2>
+        """, unsafe_allow_html=True)
 
     st.image('immagini/palco.png')
 
