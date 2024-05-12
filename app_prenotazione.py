@@ -19,9 +19,7 @@ if not os.path.exists('pdf'):
     os.makedirs('pdf')
 
 # Configurazione Streamlit
-st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered", theme={
-        "primaryColor": "#FFFF00",
-    })
+st.set_page_config(page_title="Prenotazione Posti Teatro", page_icon="🎭", layout="centered")
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
