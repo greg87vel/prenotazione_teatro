@@ -333,7 +333,7 @@ def show_billing_page():
             if seat_info['note'].strip() == '':
                 st.write(f"Note: -")
             else:
-                st.write(f"Inserisci Note (facoltativo): {seat_info['note'].upper()}")
+                st.write(f"Note: {seat_info['note'].upper()}")
             if seat_info['nominativo'].lower() == st.session_state.username.lower():
                 project_folder = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(project_folder,
@@ -396,7 +396,7 @@ def show_billing_page():
         # Form per aggiornare le informazioni di prenotazione
         if seat_info['prenotato'].lower() == 'no':
             with st.form(key='booking_form'):
-                note = st.text_area('Note', value=seat_info['note'])
+                note = st.text_area('Inserisci Note (facoltativo)', value=seat_info['note'])
                 submit_button = st.form_submit_button(label='Prenota!')
             if submit_button:
                 new_data = {
