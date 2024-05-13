@@ -333,7 +333,7 @@ def show_billing_page():
             if seat_info['note'].strip() == '':
                 st.write(f"Note: -")
             else:
-                st.write(f"Note: {seat_info['note'].upper()}")
+                st.write(f"Inserisci Note (facoltativo): {seat_info['note'].upper()}")
             if seat_info['nominativo'].lower() == st.session_state.username.lower():
                 project_folder = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(project_folder,
